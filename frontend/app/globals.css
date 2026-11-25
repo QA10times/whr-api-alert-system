@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens, section 12.1. Stored as RGB triplets so Tailwind can apply alpha. */
+:root {
+  --bg: 238 241 244;
+  --panel: 255 255 255;
+  --sunk: 246 248 250;
+  --ink: 22 32 43;
+  --muted: 85 97 110;
+  --line: 211 218 225;
+  --accent: 14 94 111;
+  --accent-soft: 225 238 241;
+  --on-accent: 255 255 255;
+  --ok: 26 117 70;
+  --ok-bg: 226 242 233;
+  --bad: 180 35 24;
+  --bad-bg: 252 233 231;
+  --warn: 143 84 0;
+  --warn-bg: 255 240 214;
+  --idle: 198 206 214;
+  --focus: 47 111 235;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: 15 21 27;
+    --panel: 23 32 42;
+    --sunk: 19 27 35;
+    --ink: 229 234 240;
+    --muted: 155 167 180;
+    --line: 42 55 67;
+    --accent: 92 184 201;
+    --accent-soft: 22 50 58;
+    --on-accent: 15 21 27;
+    --ok: 98 201 143;
+    --ok-bg: 20 48 31;
+    --bad: 243 124 112;
+    --bad-bg: 58 26 23;
+    --warn: 233 180 86;
+    --warn-bg: 51 38 13;
+    --idle: 58 71 84;
+    --focus: 126 166 255;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: 15 21 27;
+  --panel: 23 32 42;
+  --sunk: 19 27 35;
+  --ink: 229 234 240;
+  --muted: 155 167 180;
+  --line: 42 55 67;
+  --accent: 92 184 201;
+  --accent-soft: 22 50 58;
+  --on-accent: 15 21 27;
+  --ok: 98 201 143;
+  --ok-bg: 20 48 31;
+  --bad: 243 124 112;
+  --bad-bg: 58 26 23;
+  --warn: 233 180 86;
+  --warn-bg: 51 38 13;
+  --idle: 58 71 84;
+  --focus: 126 166 255;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg font-sans text-body text-ink antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--focus));
+    outline-offset: 2px;
+  }
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .input {
+    @apply min-h-[40px] w-full rounded-ctl border border-line bg-sunk px-3 py-2 text-body text-ink placeholder:text-muted disabled:opacity-60;
+  }
+  .input[aria-invalid='true'] {
+    @apply border-bad;
+  }
+  .label {
+    @apply mb-1.5 block text-meta font-semibold text-ink;
+  }
+  .hint {
+    @apply mt-1 text-hint text-muted;
+  }
+  .field-error {
+    @apply mt-1 text-hint font-medium text-bad;
+  }
+  .card {
+    @apply rounded-card border border-line bg-panel;
+  }
+  .hit-striped {
+    background-image: repeating-linear-gradient(135deg, rgb(var(--bad)) 0 4px, rgb(var(--bad-bg)) 4px 7px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
