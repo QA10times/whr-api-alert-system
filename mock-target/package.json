@@ -1,0 +1,8 @@
+{
+  "name": "whr-mock-target",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scriptable HTTP target for end-to-end tests",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" }
+}
