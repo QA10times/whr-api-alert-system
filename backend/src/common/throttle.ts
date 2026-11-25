@@ -1,4 +1,4 @@
-﻿import { applyDecorators, Injectable, UseGuards } from '@nestjs/common';
+﻿import { applyDecorators, ExecutionContext, Injectable, UseGuards } from '@nestjs/common';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import type { Request } from 'express';
 import type { AuthUser } from './types';
@@ -7,12 +7,19 @@ import type { AuthUser } from './types';
 export const LOGIN_THROTTLE = 'login'; // 5 per minute per IP
 export const SECRETS_THROTTLE = 'secrets'; // SECRET_ACCESS_RATE_PER_MIN per user
 
-/** Throttles by the signed-in user's email (falls back to IP). */
+/**
+ * Throttles by the signed-in user's email (falls back to IP). The key ignores the route,
+ * so copy curl and both credential reveals draw from one shared budget.
+ */
 @Injectable()
 export class UserThrottlerGuard extends ThrottlerGuard {
   protected async getTracker(req: Record<string, unknown>): Promise<string> {
     const user = req.user as AuthUser | undefined;
     return user?.email ?? (req as unknown as Request).ip ?? 'unknown';
+  }
+
+  protected generateKey(_ctx: ExecutionContext, tracker: string, name: string): string {
+    return `${name}:${tracker}`;
   }
 }
 

@@ -1,7 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ApisModule } from './apis/apis.module';
+import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
+import { CredentialsModule } from './credentials/credentials.module';
+import { EmailGroupsModule } from './email-groups/email-groups.module';
+import { ModulesModule } from './modules/modules.module';
+import { PlatformsModule } from './platforms/platforms.module';
 import { CommonModule } from './common/common.module';
 import { LOGIN_THROTTLE, SECRETS_THROTTLE } from './common/throttle';
 import { AppConfigModule } from './config/config.module';
@@ -24,6 +30,12 @@ import { HealthController } from './health.controller';
       ],
     }),
     AuthModule,
+    AuditModule,
+    PlatformsModule,
+    EmailGroupsModule,
+    ModulesModule,
+    ApisModule,
+    CredentialsModule,
   ],
   controllers: [HealthController],
 })
