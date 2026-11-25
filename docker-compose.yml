@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-whr}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-whr}
+      POSTGRES_DB: ${POSTGRES_DB:-whr}
+    volumes: [ "pgdata:/var/lib/postgresql/data" ]
+    ports: [ "5432:5432" ]
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-whr}" ]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build: ./backend
+    env_file: .env
+    depends_on:
+      db: { condition: service_healthy }
+    restart: unless-stopped
+
+  web:
+    build: ./frontend          # Next.js standalone server; forwards /api/* to the api service
+    environment:
+      API_INTERNAL_URL: http://api:3000
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}   # set "false" only for plain-http local runs
+    depends_on: [ api ]
+    ports: [ "8080:3000" ]
+    restart: unless-stopped
+
+  mock-target:
+    build: ./mock-target
+    profiles: [ "test" ]
+    ports: [ "4000:4000" ]
+
+volumes:
+  pgdata:
