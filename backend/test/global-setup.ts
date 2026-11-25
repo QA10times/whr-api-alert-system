@@ -16,7 +16,7 @@ export default async function globalSetup(): Promise<void> {
     DB_NAME: 'alerts_test',
     DB_USER: 'alerts',
     DB_PASSWORD: 'alerts-test',
-    AUTH_USERS: JSON.stringify({ 'tester@example.com': 'Secret#1', 'hash@example.com': '$2a$04$Sj6m4hd/VaD8AK3ZZ3AqwOk6q7mz9lEfW1Q4Wc9mO7Ad3s0wQqKOa' }),
+    AUTH_USERS: JSON.stringify({ 'tester@example.com': 'Secret#1', 'hash@example.com': '$2a$04$ieo5vZzxQ2n3cSXWf..QteJqPd7JopkrltEdQydaYvQR3mfapo//6' /* Hashed#1 */ }),
     JWT_SECRET: randomBytes(32).toString('hex'),
     JWT_EXPIRES_IN: '12h',
     ENCRYPTION_KEY: randomBytes(32).toString('base64'),

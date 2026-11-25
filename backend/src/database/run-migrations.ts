@@ -12,12 +12,13 @@ export async function migrateAndSeed(env: NodeJS.ProcessEnv = process.env): Prom
     DB_USER: env.DB_USER ?? 'alerts',
     DB_PASSWORD: env.DB_PASSWORD ?? '',
   });
+  const log = env.NODE_ENV === 'test' ? () => undefined : console.log;
   await ds.initialize();
   try {
     const applied = await ds.runMigrations({ transaction: 'each' });
-    for (const m of applied) console.log(`migration applied: ${m.name}`);
+    for (const m of applied) log(`migration applied: ${m.name}`);
     await seedWhr(ds);
-    console.log('seed ok');
+    log('seed ok');
   } finally {
     await ds.destroy();
   }
