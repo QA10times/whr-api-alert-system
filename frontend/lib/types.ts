@@ -43,7 +43,7 @@ export interface SummaryModule {
 }
 export interface Summary {
   platform: string;
-  environment: { key: EnvKey; baseUrl: string };
+  environment: { id: number; key: EnvKey; name: string; baseUrl: string | null };
   counts: { apis: number; failing: number; alertsOpen: number; modules: number };
   modules: SummaryModule[];
 }
@@ -72,14 +72,20 @@ export interface AlertRow {
   id: number;
   apiId: number;
   apiName: string;
+  moduleName: string;
   kind: 'FAILURE' | 'RECOVERY';
   statusCode: number | null;
   failureReason: string | null;
   observedAt: string;
+  firstFailedAt: string;
   tag: Tag | null;
   groupName: string | null;
   recipients: string[];
   status: 'PENDING' | 'SENT' | 'FAILED';
+  attempts: number;
+  /** Why delivery failed ("no recipients", an SMTP error), or a note on a sent alert. */
+  errorMessage: string | null;
+  sentAt: string | null;
 }
 export interface AlertDetail extends AlertRow {
   subject: string;
@@ -91,22 +97,27 @@ export interface CurlResponse {
   missing: string[];
 }
 
-// ---- Shapes the frontend doc references but does not spell out. ----
-// TODO(backend-doc): reconcile field names with the backend design (HLD/LLD).
+// ---- Shapes the backend design names but does not spell out; these match the NestJS responses. ----
+/** GET /platforms */
 export interface Platform {
+  id: number;
   key: string;
   name: string;
-  environments: { id: number; key: EnvKey; baseUrl: string; isDefault: boolean }[];
+  environments: { id: number; key: EnvKey; name: string; baseUrl: string | null; isDefault: boolean }[];
 }
 export interface GroupRef {
   id: number;
   name: string;
   memberCount: number;
 }
+/** GET /modules?env= */
 export interface ModuleListItem {
   id: number;
   name: string;
   environmentId: number;
+  environment: EnvKey;
+  baseUrl: string;
+  authMethod: AuthMethod;
   frequencyMinutes: number;
   isActive: boolean;
   apiCount: number;
@@ -114,8 +125,11 @@ export interface ModuleListItem {
   emailGroup: GroupRef | null;
 }
 export interface ApiRow extends ApiCardData {
+  moduleId: number;
   baseUrlOverride: string | null;
+  sortOrder: number;
 }
+/** GET /modules/:id, and the result of POST /modules and PATCH /modules/:id */
 export interface ModuleDetail {
   id: number;
   name: string;
@@ -125,12 +139,13 @@ export interface ModuleDetail {
   auth: AuthStatus;
   headers: Record<string, string>;
   frequencyMinutes: number;
+  failureThreshold: number;
   emailGroup: GroupRef | null;
   isActive: boolean;
   apis: ApiRow[];
 }
+/** GET /apis/:id, and the result of POST /modules/:id/apis and PATCH /apis/:id */
 export interface ApiDetail extends ApiRow {
-  moduleId: number;
   moduleName: string;
   environment: EnvKey;
   effectiveBaseUrl: string;
@@ -141,9 +156,11 @@ export interface ApiDetail extends ApiRow {
   headers: Record<string, string>;
   body: unknown | null;
   ownFrequencyMinutes: number | null;
+  timeoutMs: number;
   /** Set by PATCH /apis/:id when the request fingerprint changed. */
   streakReset?: boolean;
 }
+/** GET /apis/:id/runs, newest first */
 export interface RunRow {
   id: number;
   startedAt: string;
@@ -153,10 +170,24 @@ export interface RunRow {
   countValue: number | null;
   itemCount: number | null;
   latencyMs: number | null;
+  errorMessage: string | null;
+  responseSnippet: string | null;
 }
+/** GET /email-groups */
 export interface EmailGroup {
   id: number;
   name: string;
+  description: string | null;
+  memberCount: number;
   members: { id: number; email: string }[];
   usedBy: { id: number; name: string; environment: EnvKey }[];
+}
+/** POST /email-groups/:id/members: the group plus which addresses were added and which already existed. */
+export interface AddMembersResult extends EmailGroup {
+  added: string[];
+  existing: string[];
+}
+/** 202 from POST /apis/:id/run and POST /platforms/:key/environments/:env/run */
+export interface RunAccepted extends RunnerStatus {
+  queued: number;
 }

@@ -1,7 +1,20 @@
-'use client';
+﻿'use client';
 import * as RD from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
+
+/**
+ * The element focused before any dialog opened. Dialogs that load data first show a skeleton dialog
+ * and then mount the real one, so Radix's own "return focus" would point inside the skeleton (gone by
+ * then). Tracking the last focus outside every dialog returns focus to the button that opened it.
+ */
+let outsideFocus: HTMLElement | null = null;
+const OPEN_DIALOG = '[role="dialog"][data-state="open"]';
+
+function rememberOutsideFocus() {
+  const el = document.activeElement as HTMLElement | null;
+  if (el && el !== document.body && !el.closest('[role="dialog"]')) outsideFocus = el;
+}
 
 interface Props {
   open: boolean;
@@ -16,12 +29,29 @@ interface Props {
 
 export function Dialog({ open, onOpenChange, title, children, footer, wide, onSubmit }: Props) {
   const Body = (onSubmit ? 'form' : 'div') as 'form';
+  const returnTo = useRef<HTMLElement | null>(null);
   return (
     <RD.Root open={open} onOpenChange={onOpenChange}>
       <RD.Portal>
         <RD.Overlay className="fixed inset-0 z-40 bg-black/40 data-[state=open]:animate-[fade_120ms_ease-out]" />
         <RD.Content
           aria-describedby={undefined}
+          onOpenAutoFocus={() => {
+            rememberOutsideFocus();
+            returnTo.current = outsideFocus;
+          }}
+          onCloseAutoFocus={(e) => {
+            // Also runs on unmount. Another dialog took over (skeleton â†’ form): leave focus to it.
+            if (document.querySelector(OPEN_DIALOG)) {
+              e.preventDefault();
+              return;
+            }
+            const el = returnTo.current ?? outsideFocus; // the form dialog may mount after the skeleton took the open event
+            if (el?.isConnected) {
+              e.preventDefault();
+              el.focus();
+            }
+          }}
           className={`fixed left-1/2 top-1/2 z-50 flex max-h-[calc(100dvh-24px)] w-[calc(100vw-24px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-dialog border border-line bg-panel shadow-2xl ${
             wide ? 'max-w-[680px]' : 'max-w-[560px]'
           }`}

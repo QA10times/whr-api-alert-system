@@ -57,8 +57,10 @@ export function AddEmailsForm({ group }: { group: EmailGroup }) {
     add.mutate(
       { id: group.id, emails: fresh },
       {
-        onSuccess: () => {
-          toast({ title: `Added ${fresh.length} to ${group.name}.` });
+        onSuccess: (r) => {
+          // the server reports what it actually added; someone else may have added an address meanwhile
+          const already = r.existing.length ? ` ${r.existing.length} already in the group.` : '';
+          toast({ title: `Added ${r.added.length} to ${group.name}.${already}` });
           setText('');
         },
         onError: (err) => setError(err.message),
