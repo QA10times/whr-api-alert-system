@@ -42,6 +42,7 @@ export function AlertEmailDialog({
             <dt className="text-muted">Delivery</dt>
             <dd className={a.status === 'FAILED' ? 'font-semibold text-bad' : ''}>
               {a.status === 'SENT' ? 'Sent' : a.status === 'PENDING' ? 'Pending' : 'Not delivered'}
+              {a.status !== 'SENT' && a.errorMessage ? ` — ${a.errorMessage}` : ''}
             </dd>
           </dl>
           <div className="border-t border-line px-4 py-3">

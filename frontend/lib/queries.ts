@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, del, patch, post } from './api';
 import type {
+  AddMembersResult,
   AlertDetail,
   AlertRow,
   ApiDetail,
@@ -13,6 +14,7 @@ import type {
   ModuleDetail,
   ModuleListItem,
   Platform,
+  RunAccepted,
   RunnerStatus,
   RunRow,
   Summary,
@@ -225,14 +227,14 @@ export function useDeleteApi() {
 export function useRunCycle() {
   const inv = useInvalidate();
   return useMutation({
-    mutationFn: (env: EnvKey) => api<RunnerStatus>(`/platforms/${PLATFORM}/environments/${env}/run`, post()),
+    mutationFn: (env: EnvKey) => api<RunAccepted>(`/platforms/${PLATFORM}/environments/${env}/run`, post()),
     onSuccess: () => inv(qk.runner),
   });
 }
 export function useRunApi() {
   const inv = useInvalidate();
   return useMutation({
-    mutationFn: (id: number) => api<RunnerStatus>(`/apis/${id}/run`, post()),
+    mutationFn: (id: number) => api<RunAccepted>(`/apis/${id}/run`, post()),
     onSuccess: () => inv(qk.runner),
   });
 }
@@ -262,7 +264,7 @@ export function useAddMembers() {
   const inv = useInvalidate();
   return useMutation({
     mutationFn: ({ id, emails }: { id: number; emails: string[] }) =>
-      api<EmailGroup>(`/email-groups/${id}/members`, post({ emails })),
+      api<AddMembersResult>(`/email-groups/${id}/members`, post({ emails })),
     onSuccess: () => inv(qk.groups, ['modules'], ['module']),
   });
 }
