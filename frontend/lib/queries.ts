@@ -67,6 +67,10 @@ export function useEnv() {
     [params, pathname, router],
   );
   const setEnv = useCallback((e: EnvKey) => setParams({ env: e, module: null }), [setParams]);
+  // Missing or unknown ?env= → write the resolved environment into the URL (replace, no history entry).
+  useEffect(() => {
+    if (envs.length && raw !== env) setParams({ env });
+  }, [envs.length, raw, env, setParams]);
   const environment = envs.find((e) => e.key === env);
   return { env, setEnv, setParams, params, environments: envs, environment };
 }
