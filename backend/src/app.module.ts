@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AlertsModule } from './alerts/alerts.module';
 import { ApisModule } from './apis/apis.module';
+import { MonitorModule } from './monitor/monitor.module';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { CredentialsModule } from './credentials/credentials.module';
@@ -36,6 +38,8 @@ import { HealthController } from './health.controller';
     ModulesModule,
     ApisModule,
     CredentialsModule,
+    AlertsModule,
+    MonitorModule,
   ],
   controllers: [HealthController],
 })

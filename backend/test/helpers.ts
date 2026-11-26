@@ -49,6 +49,8 @@ export async function createTestApp(overrides: Record<string, string> = {}): Pro
 /** Wipes config and run data between suites; keeps platforms/environments/runner_state. */
 export async function resetData(ds: DataSource): Promise<void> {
   await ds.query(`TRUNCATE alerts, api_runs, apis, modules, email_group_members, email_groups, audit_log RESTART IDENTITY CASCADE`);
+  // runner_state references apis, so the CASCADE above empties it too; restore the single row
+  await ds.query(`INSERT INTO runner_state (id) VALUES (1) ON CONFLICT (id) DO NOTHING`);
   await ds.query(`UPDATE runner_state SET environment_id = NULL, current_api_id = NULL, batch_total = 0, batch_done = 0, heartbeat_at = NULL`);
 }
 
