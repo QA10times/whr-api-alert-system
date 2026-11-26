@@ -10,6 +10,7 @@
     "migrate": "node dist/database/run-migrations.js",
     "migrate:dev": "ts-node src/database/run-migrations.ts",
     "db:dev": "ts-node scripts/dev-db.ts",
+    "e2e:api": "ts-node --transpile-only scripts/e2e-stack.ts",
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "jest",
     "test:unit": "jest --selectProjects unit",

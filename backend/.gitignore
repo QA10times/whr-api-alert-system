@@ -4,4 +4,5 @@ coverage/
 .env
 .pgdata/
 .pgdata-test/
+.pgdata-e2e/
 *.log
